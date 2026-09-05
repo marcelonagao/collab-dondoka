@@ -758,27 +758,18 @@ export default function ProjectBoard() {
 
   const groupedProjects = finalFilteredTasks.reduce((acc, task) => {
     const projectName = task.custom_fields?.projeto_mae || 'Tarefas Avulsas';
-    if (!acc[projectName])
-      acc[projectName] = {
-        tasks: [],
-        totalHoras: 0,
-        horasConcluidas: 0,
-        deadline: task.custom_fields?.data_prazo,
-      };
+    if (!acc[projectName]) acc[projectName] = { tasks: [], totalHoras: 0, horasConcluidas: 0, deadline: task.custom_fields?.data_prazo };
     const horas = Number(task.custom_fields?.horas_estimadas || 0);
-    acc[projectName].tasks.push(task);
-    acc[projectName].totalHoras += horas;
-    if (
-      task.custom_fields?.data_prazo &&
-      (!acc[projectName].deadline ||
-        new Date(task.custom_fields.data_prazo) >
-          new Date(acc[projectName].deadline))
-    )
-      acc[projectName].deadline = task.custom_fields.data_prazo;
-    if (task.custom_fields?.status_principal === doneColumnName)
-      acc[projectName].horasConcluidas += horas;
+    acc[projectName].tasks.push(task); acc[projectName].totalHoras += horas;
+    
+    // O "!" no final de deadline avisa ao TypeScript que o valor é seguro
+    if (task.custom_fields?.data_prazo && (!acc[projectName].deadline || new Date(task.custom_fields.data_prazo) > new Date(acc[projectName].deadline!))) {
+       acc[projectName].deadline = task.custom_fields.data_prazo;
+    }
+    
+    if (task.custom_fields?.status_principal === doneColumnName) acc[projectName].horasConcluidas += horas;
     return acc;
-  }, {} as Record<string, { tasks: Task[]; totalHoras: number; horasConcluidas: number; deadline?: string }>);
+  }, {} as Record<string, { tasks: Task[], totalHoras: number, horasConcluidas: number, deadline?: string }>);
 
   const teamStats = Object.values(
     finalFilteredTasks.reduce((acc, task) => {
