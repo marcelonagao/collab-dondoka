@@ -378,32 +378,17 @@ export default function ProjectBoard() {
   ]);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      if (session) initializeData();
-    });
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      if (session) initializeData();
-    });
+    supabase.auth.getSession().then(({ data: { session } }) => { setSession(session); if (session) initializeData(); });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => { setSession(session); if (session) initializeData(); });
     return () => subscription.unsubscribe();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     if (!session) return;
-    const channel = supabase
-      .channel('db-changes')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'tasks' },
-        fetchTasks
-      )
-      .subscribe();
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    const channel = supabase.channel('db-changes').on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, fetchTasks).subscribe();
+    return () => { supabase.removeChannel(channel); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session]);
 
   const initializeData = async () => {
