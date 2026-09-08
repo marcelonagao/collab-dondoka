@@ -968,6 +968,9 @@ export default function ProjectBoard() {
                   const isExpanded = expandedProjects.includes(projectName);
                   const pColor = getProjectColor(projectName);
 
+                  // 👇 ESTA É A LINHA QUE FALTAVA (Calcula a saúde do projeto)
+                  const health = getProjectHealth(progressPercent, data.deadline);
+
                   return (
                     <tbody key={projectName}>
                       {/* Cabeçalho do Grupo (Resumo Agregado) */}
