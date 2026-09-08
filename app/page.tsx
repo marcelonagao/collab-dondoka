@@ -985,34 +985,48 @@ export default function ProjectBoard() {
 
                   return (
                     <tbody key={projectName}>
-                      <tr
-                        onClick={() => toggleProject(projectName)}
-                        className="border-b border-slate-100 bg-white hover:bg-slate-50 cursor-pointer group"
-                      >
-                        <td colSpan={5} className="p-0">
-                          <div className="flex items-center p-3 pl-4">
-                            <ChevronRight
-                              size={18}
-                              className={`text-slate-400 mr-2 transition-transform ${
-                                isExpanded
-                                  ? 'rotate-90'
-                                  : 'group-hover:text-indigo-500'
-                              }`}
-                            />
-                            <h2
-                              className={`font-bold text-lg flex items-center gap-2 ${pColor.replace(
-                                'bg-',
-                                'text-'
-                              )}`}
-                            >
-                              {projectName}{' '}
-                              <span className="text-xs text-slate-400 font-normal ml-2">
-                                ({data.tasks.length} itens)
-                              </span>
-                            </h2>
-                          </div>
-                        </td>
-                      </tr>
+                      {/* Cabeçalho do Grupo (Resumo Agregado) */}
+<tr onClick={() => toggleProject(projectName)} className="border-b border-slate-200 bg-white hover:bg-slate-50 cursor-pointer group shadow-sm">
+  <td className="p-3 pl-4">
+    <div className="flex items-center">
+       <ChevronRight size={18} className={`text-slate-400 mr-2 transition-transform ${isExpanded ? 'rotate-90' : 'group-hover:text-indigo-500'}`} />
+       <h2 className={`font-bold text-sm md:text-base flex items-center gap-2 ${pColor.replace('bg-', 'text-')}`}>
+         {projectName} <span className="text-xs text-slate-400 font-normal ml-1">({data.tasks.length})</span>
+       </h2>
+    </div>
+  </td>
+  <td className="p-3">
+    {/* Agrupa e exibe quem está trabalhando neste projeto */}
+    <div className="flex items-center -space-x-1.5">
+      {Array.from(new Set(data.tasks.map(t => t.custom_fields?.responsavel_email).filter(Boolean))).slice(0, 3).map((email, idx) => (
+        <Avatar key={idx} name={resolveName(email as string)} className="w-6 h-6 text-[10px] ring-2 ring-white z-10" />
+      ))}
+      {new Set(data.tasks.map(t => t.custom_fields?.responsavel_email).filter(Boolean)).size > 3 && (
+        <div className="flex items-center justify-center w-6 h-6 rounded-full bg-slate-200 border-2 border-white text-[9px] font-bold text-slate-600 z-20">
+          +{new Set(data.tasks.map(t => t.custom_fields?.responsavel_email).filter(Boolean)).size - 3}
+        </div>
+      )}
+    </div>
+  </td>
+  <td className="p-3">
+    {/* Etiqueta de Saúde do Projeto */}
+    <span className={`px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md border inline-flex items-center gap-1 shadow-sm ${health.color}`}>
+      {health.icon} {health.label}
+    </span>
+  </td>
+  <td className="p-3 text-xs text-slate-600 font-medium">
+    {data.deadline ? new Date(data.deadline).toLocaleDateString('pt-BR') : '-'}
+  </td>
+  <td className="p-3 w-40">
+    {/* Barra de Progresso do Projeto */}
+    <div className="flex items-center gap-2">
+      <div className="w-full bg-slate-200/60 rounded-full h-1.5 overflow-hidden">
+        <div className="bg-indigo-500 h-1.5 rounded-full transition-all duration-700" style={{ width: `${progressPercent}%` }}></div>
+      </div>
+      <span className="text-[10px] font-bold text-slate-500 w-8 text-right">{progressPercent}%</span>
+    </div>
+  </td>
+</tr>
 
                       {isExpanded &&
                         [...data.tasks]
